@@ -26,23 +26,69 @@ santa_clara_cities = [
     "Palo Alto", "San Jose", "Santa Clara", "Saratoga", "Sunnyvale"
 ]
 
+st.sidebar.markdown("# H2Optimize")
+language = st.sidebar.selectbox("Select your language", ["English", "Spanish", "Mandarin", "Cantonese", "Vietnamese"])
+
+# Function to translate multiple labels in a single call
+def translate_labels(labels, target_language):
+    if target_language == "English":  # Skip translation if English is selected
+        return labels
+
+    labels_text = "\n".join(labels.values())
+    translation_prompt = f"Translate the following text to {target_language}:\n{labels_text}"
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", 
+             "content": f"You are a helpful assistant that translates text to {target_language}."},
+            {"role": "user",
+             "content": translation_prompt}
+        ]
+    )
+    
+    # Split the response by lines and map back to labels
+    translated_text = response.choices[0].message.content.split("\n")
+    return dict(zip(labels.keys(), translated_text))
+
+# Function to translate a single text block (for the tips)
 def translate_text(text, target_language):
-    """Translate a single text component if the target language is not English."""
-    if target_language != "English":
-        try:
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": f"Translate the following text to {target_language}:"},
-                    {"role": "user", "content": text}
-                ]
-            )
-            translated_text = response.choices[0].message.content.strip()
-            return translated_text
-        except Exception as e:
-            st.error("Translation error. Falling back to English.")
-            return text
-    return text
+    if target_language == "English":  # Skip translation if English is selected
+        return text
+    
+    translation_prompt = f"Translate the following text to {target_language}:\n{text}"
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", 
+             "content": f"You are a helpful assistant that translates text to {target_language}."},
+            {"role": "user",
+             "content": translation_prompt}
+        ]
+    )
+    return response.choices[0].message.content
+
+# Define default labels and translate if necessary
+labels = {
+    "header": "Water Conservation Tips Generator",
+    "welcome_message": "Welcome to H2Optimize, the AI-powered platform designed to transform your water habits. "
+                   "By analyzing your household’s unique water usage—from appliance use to daily activities—we "
+                   "provide personalized tips to help you conserve water effectively. Start conserving today and "
+                   "make every drop count for a sustainable future!",
+    "location_message": "This application was created for Santa Clara County locations.",
+    "location_label": "Select the city you are located in:",
+    "choose_city_option": "Choose a city",  # Add "Choose a city" option to labels for translation
+    "household_size_label": "How many people are in the household?",
+    "appliances_label": "Appliance usage (e.g., washing machine, dishwasher, water softener, etc.)",
+    "water_features_label": "Water features (e.g., garden, hot tub, swimming pool, etc.)",
+    "showering_usage_label": "Describe showering, bathtub, and toilet usage",
+    "car_wash_label": "How many times do you wash your car?",
+    "input_year_label": "Enter the year (e.g., 2024):",
+    "input_month_label": "Enter the month (1-12):",
+    "submit_label": "Submit",
+    "tips_header": "Personalized Water Conservation Tips:"  # Add this for translation
+}
+
+labels = translate_labels(labels, language)
 
 # Function to find the closest match for a given year and month
 def get_closest_month_year(avg_temp_data, input_year, input_month):
@@ -73,105 +119,37 @@ def get_completion(prompt, model="gpt-3.5-turbo"):
         model=model,
         messages=[
             {"role": "system",
-             "content": "Imagine you are an expert water conservationist. Provide and list 10 personalized water conservation tips based on the user inputs and climate data. The response should be in a numbered bullet-point format suitable for practical home water management and sustainability planning."},
+             "content": "Imagine you are an expert water conservationist. Provide and list 10 personalized water conservation tips\
+                based on the user inputs and climate data. The response should be in a numbered bullet-point format suitable for practical\
+                home water management and sustainability planning."},
             {"role": "user",
              "content": prompt}
         ]
     )
     return completion.choices[0].message.content
 
-# Sidebar content
-st.sidebar.markdown("# H2Optimize")
-language = st.sidebar.selectbox(
-    "Choose your language", ["English", "Spanish", "Mandarin", "Cantonese", "Vietnamese"]
-)
-
-# Initialize translated text only if language is not English
-if language != "English":
-    # Combine all text as one formatted block
-    combined_text = (
-        "Water Conservation Tips Generator\n\n"
-        "Welcome to H2Optimize, the AI-powered platform designed to transform your water habits. By analyzing "
-        "your household’s unique water usage—from appliance use to daily activities—we provide personalized tips "
-        "to help you conserve water effectively. Start conserving today and make every drop count for a sustainable future!\n\n"
-        "This application was created for Santa Clara County locations.\n\n"
-        "Select the city you are located in:\n\n"
-        "How many people are in the household?\n\n"
-        "Appliance usage (e.g., washing machine, dishwasher, water softener, etc.)\n\n"
-        "Water features (e.g., garden, hot tub, swimming pool, etc.)\n\n"
-        "Describe showering, bathtub, and toilet usage\n\n"
-        "How many times do you wash your car?\n\n"
-        "Enter the year (e.g., 2024):\n\n"
-        "Enter the month (1-12):\n\n"
-        "Submit"
-    )
-
-    # Translate all text in one API call
-    translated_combined_text = translate_text(combined_text, language)
-
-    # Check if translation was successful
-    if translated_combined_text and "Water Conservation" not in translated_combined_text:
-        # Split by double newlines
-        translated_parts = translated_combined_text.split("\n\n")
-        if len(translated_parts) >= 12:  # Ensure enough parts for all labels
-            header = translated_parts[0]
-            welcome_message = translated_parts[1]
-            location_message = translated_parts[2]
-            location_label = translated_parts[3]
-            household_size_label = translated_parts[4]
-            appliances_label = translated_parts[5]
-            water_features_label = translated_parts[6]
-            showering_usage_label = translated_parts[7]
-            car_wash_label = translated_parts[8]
-            input_year_label = translated_parts[9]
-            input_month_label = translated_parts[10]
-            submit_label = translated_parts[11]
-        else:
-            st.error("Translation error. Falling back to English.")
-            language = "English"
-    else:
-        language = "English"
-
-# Default English labels if translation failed or English is selected
-if language == "English":
-    header = "Water Conservation Tips Generator"
-    welcome_message = ("Welcome to H2Optimize, the AI-powered platform designed to transform your water habits. "
-                       "By analyzing your household’s unique water usage—from appliance use to daily activities—we "
-                       "provide personalized tips to help you conserve water effectively. Start conserving today and "
-                       "make every drop count for a sustainable future!")
-    location_message = "This application was created for Santa Clara County locations."
-    location_label = "Select the city you are located in:"
-    household_size_label = "How many people are in the household?"
-    appliances_label = "Appliance usage (e.g., washing machine, dishwasher, water softener, etc.)"
-    water_features_label = "Water features (e.g., garden, hot tub, swimming pool, etc.)"
-    showering_usage_label = "Describe showering, bathtub, and toilet usage"
-    car_wash_label = "How many times do you wash your car?"
-    input_year_label = "Enter the year (e.g., 2024):"
-    input_month_label = "Enter the month (1-12):"
-    submit_label = "Submit"
-
 # Page content for Water Conservation Tips Generator
-st.markdown(f"# {header}")
-st.write(welcome_message)
-st.write(location_message)
+st.markdown(f"# {labels['header']}")
+st.write(labels['welcome_message'])
+st.write(labels['location_message'])
 
 # Form for user inputs
 with st.form(key="water_habits_form"):
-    location = st.selectbox(location_label, ["Choose a city"] + santa_clara_cities)
-    household_size = st.number_input(household_size_label, min_value=1, step=1)
-    appliances = st.text_input(appliances_label)
-    water_features = st.text_input(water_features_label)
-    showering_usage = st.text_input(showering_usage_label)
-    car_wash = st.text_input(car_wash_label)
+    location = st.selectbox(labels["location_label"], [labels["choose_city_option"]] + santa_clara_cities)
+    household_size = st.number_input(labels["household_size_label"], min_value=1, step=1)
+    appliances = st.text_input(labels["appliances_label"])
+    water_features = st.text_input(labels["water_features_label"])
+    showering_usage = st.text_input(labels["showering_usage_label"])
+    car_wash = st.text_input(labels["car_wash_label"])
     input_year = st.number_input(
-        input_year_label, min_value=2024, max_value=datetime.now().year, step=1
+        labels["input_year_label"], min_value=2024, max_value=datetime.now().year, step=1
     )
-    input_month = st.number_input(input_month_label, min_value=1, max_value=12, step=1)
+    input_month = st.number_input(labels["input_month_label"], min_value=1, max_value=12, step=1)
 
-    submitted = st.form_submit_button(submit_label)
+    submitted = st.form_submit_button(labels["submit_label"])
 
 if submitted:
-    if location == "Choose a city":
+    if location == labels["choose_city_option"]:
         st.error("Please select a valid city to continue.")
     else:
         # Continue with processing only if a valid city is chosen
@@ -186,5 +164,13 @@ if submitted:
         Car wash frequency: {car_wash}
         """
         tips = get_completion(user_inputs)
-        st.write("Personalized Water Conservation Tips:")
-        st.write(tips)
+
+        # Translate tips if language is not English
+        if language != "English":
+            translated_tips = translate_text(tips, language)
+        else:
+            translated_tips = tips
+
+        # Display the translated "Personalized Water Conservation Tips" header
+        st.write(f"{labels['tips_header']}")
+        st.write(translated_tips)
