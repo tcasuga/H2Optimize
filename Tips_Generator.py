@@ -84,8 +84,7 @@ labels = {
     "car_wash_label": "How many times do you wash your car?",
     "input_year_label": "Enter the year (e.g., 2024):",
     "input_month_label": "Enter the month (1-12):",
-    "submit_label": "Submit",
-    "tips_header": "Personalized Water Conservation Tips:"  # Add this for translation
+    "submit_label": "Submit"
 }
 
 labels = translate_labels(labels, language)
@@ -149,7 +148,7 @@ with st.form(key="water_habits_form"):
     submitted = st.form_submit_button(labels["submit_label"])
 
 if submitted:
-    if location == labels["choose_city_option"]:
+    if location == "Choose a city":
         st.error("Please select a valid city to continue.")
     else:
         # Continue with processing only if a valid city is chosen
@@ -168,9 +167,11 @@ if submitted:
         # Translate tips if language is not English
         if language != "English":
             translated_tips = translate_text(tips, language)
+            translated_header = translate_text("Personalized Water Conservation Tips:", language)
         else:
             translated_tips = tips
+            translated_header = "Personalized Water Conservation Tips:"
 
-        # Display the translated "Personalized Water Conservation Tips" header
-        st.write(f"{labels['tips_header']}")
+        # Display the translated header
+        st.write(translated_header)
         st.write(translated_tips)
