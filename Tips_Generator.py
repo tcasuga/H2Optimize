@@ -26,6 +26,8 @@ santa_clara_cities = [
     "Palo Alto", "San Jose", "Santa Clara", "Saratoga", "Sunnyvale"
 ]
 
+st.sidebar.image("logo/group_logo.png", use_column_width=True)
+
 st.sidebar.markdown("# H2Optimize")
 language = st.sidebar.selectbox("Select your language", ["English", "Spanish", "Mandarin", "Cantonese", "Vietnamese"])
 
