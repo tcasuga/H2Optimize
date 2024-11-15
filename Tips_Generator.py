@@ -120,9 +120,12 @@ def get_completion(prompt, model="gpt-3.5-turbo"):
         model=model,
         messages=[
             {"role": "system",
-             "content": "Imagine you are an expert water conservationist. Provide and list 10 personalized water conservation tips\
-                based on the user inputs and climate data. The response should be in a numbered bullet-point format suitable for practical\
-                home water management and sustainability planning."},
+             "content": "Imagine you are an expert water conservationist. Review the given user inputs and state the areas that need to be improved.\
+                Provide and list 10 personalized water conservation tips that are based on the user inputs and climate data, you should refer to the\
+                climate data somewhere in the tips. Ensure that the tips are relatively short, but still percise and clear. The response should be in a numbered\
+                bullet-point format suitable for practical home water management and sustainability planning. For example, first you tell the user the\
+                areas that need to be improved and then list the 10 personalized water conservation tips. Ensure to highlight the headers that separate the two\
+                sections, such as Areas that Need Improvement and Personalized Water Conservation Tips for the selected city. Also, make sure the headers are a slightly bigger sized font."},
             {"role": "user",
              "content": prompt}
         ]
@@ -145,9 +148,12 @@ with st.form(key="water_habits_form"):
     input_year = st.number_input(
         labels["input_year_label"], min_value=2024, max_value=datetime.now().year, step=1
     )
-    input_month = st.number_input(labels["input_month_label"], min_value=1, max_value=12, step=1)
+    input_month_name = st.selectbox(labels["input_month_label"], list(month_map.keys()))  # Month names
 
     submitted = st.form_submit_button(labels["submit_label"])
+
+# Convert selected month name to its corresponding number for further processing
+input_month = month_map[input_month_name]
 
 if submitted:
     if location == "Choose a city":
@@ -169,11 +175,8 @@ if submitted:
         # Translate tips if language is not English
         if language != "English":
             translated_tips = translate_text(tips, language)
-            translated_header = translate_text("Personalized Water Conservation Tips:", language)
         else:
             translated_tips = tips
-            translated_header = "Personalized Water Conservation Tips:"
 
         # Display the translated header
-        st.write(translated_header)
         st.write(translated_tips)
