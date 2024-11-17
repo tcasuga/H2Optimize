@@ -83,7 +83,7 @@ labels = {
     "appliances_label": "Appliance usage (e.g., washing machine, dishwasher, water softener, etc.)",
     "water_features_label": "Water features (e.g., garden, hot tub, swimming pool, etc.)",
     "showering_usage_label": "Describe showering, bathtub, and toilet usage",
-    "car_wash_label": "How many times do you wash your car?",
+    "car_wash_label": "How many times do you wash your car per year?",
     "input_year_label": "Enter the year (e.g., 2024):",
     "input_month_label": "Select the month:",
     "submit_label": "Submit"
