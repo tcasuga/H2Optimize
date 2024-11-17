@@ -85,7 +85,7 @@ labels = {
     "showering_usage_label": "Describe showering, bathtub, and toilet usage",
     "car_wash_label": "How many times do you wash your car?",
     "input_year_label": "Enter the year (e.g., 2024):",
-    "input_month_label": "Enter the month (1-12):",
+    "input_month_label": "Select the month:",
     "submit_label": "Submit"
 }
 
@@ -121,16 +121,42 @@ def get_completion(prompt, model="gpt-3.5-turbo"):
         messages=[
             {"role": "system",
              "content": "Imagine you are an expert water conservationist. Review the given user inputs and state the areas that need to be improved.\
-                Provide and list 10 personalized water conservation tips that are based on the user inputs and climate data, you should refer to the\
-                climate data somewhere in the tips. Ensure that the tips are relatively short, but still percise and clear. The response should be in a numbered\
+                Provide and list 10 personalized water conservation tips that are based on the user inputs and climate data. Ensure that the tips are\
+                relatively short, but still percise and clear. The response should be in a numbered\
                 bullet-point format suitable for practical home water management and sustainability planning. For example, first you tell the user the\
-                areas that need to be improved and then list the 10 personalized water conservation tips. Ensure to highlight the headers that separate the two\
-                sections, such as Areas that Need Improvement and Personalized Water Conservation Tips for the selected city. Also, make sure the headers are a slightly bigger sized font."},
+                areas that need to be improved and then list the 10 personalized water conservation tips. Make sure to highlight the bigger headers that\
+                separate the two sections, such as Areas that Need Improvement and Personalized Water Conservation Tips for the selected city."},
             {"role": "user",
              "content": prompt}
         ]
     )
     return completion.choices[0].message.content
+
+# Cache for translated months to reduce API calls
+translated_month_cache = {}
+
+# Function to get translated month names, minimizing API calls
+def get_translated_months(target_language):
+    if target_language == "English":
+        return list(month_map.keys())  # Return the default English month names
+    
+    # Check if the months for the selected language are already cached
+    if target_language in translated_month_cache:
+        return translated_month_cache[target_language]
+    
+    # Translate the month names if not cached
+    month_names = list(month_map.keys())
+    translated_month_names = translate_text("\n".join(month_names), target_language)
+    translated_month_list = translated_month_names.split("\n")
+    
+    # Cache the result for future use
+    translated_month_cache[target_language] = translated_month_list
+    
+    return translated_month_list
+
+# Get the translated month names
+translated_month_names = get_translated_months(language)
+month_map_translated = dict(zip(translated_month_names, month_map.values()))  # Update month_map with translated names
 
 # Page content for Water Conservation Tips Generator
 st.markdown(f"# {labels['header']}")
@@ -148,12 +174,12 @@ with st.form(key="water_habits_form"):
     input_year = st.number_input(
         labels["input_year_label"], min_value=2024, max_value=datetime.now().year, step=1
     )
-    input_month_name = st.selectbox(labels["input_month_label"], list(month_map.keys()))  # Month names
+    input_month_name = st.selectbox(labels["input_month_label"], list(month_map_translated.keys()))  # Translated month names
 
     submitted = st.form_submit_button(labels["submit_label"])
 
 # Convert selected month name to its corresponding number for further processing
-input_month = month_map[input_month_name]
+input_month = month_map_translated[input_month_name]
 
 if submitted:
     if location == "Choose a city":
