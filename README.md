@@ -1,7 +1,8 @@
 # H2Optimize
 
 ## Overview
+### What is H2Optimize?
 H2Optimize is an AI-powered water habits system that tackles the issue of water conservation in Santa Clara County.
 
-### What is H2Optimize?
-The application delivers personalized water conservation tips, generates custom visuals, and provides multilingual support. User input and county average temperature data (from Santa Clara County Weather History) are used to generate conservation tips tailored to the user’s water consumption. The custom visuals allow users to produce images (using OpenAI Dall-E) that visualize conservation tips, making the advice more memorable. The multilingual support feature offers Spanish, Mandarin, Cantonese, and Vietnamese translation options so users can choose their preferred language in settings for easier navigation.
+### Our Solution
+Our application has three features that include delivering personalized water conservation tips, generating custom visuals, and providing multilingual support. Users will input their answers to questions regarding their water usage. The topics consist of city location, number of people in the household, appliance usage, water features, personal usage, and the current year and month. H2Optimize will generate 10 conservation tips using the user's input and county average temperature data (from a Santa Clara County Weather History dataset). Next, the user can produce custom visuals (using OpenAI Dall-E) which help visualize water conservations tips or keywords. Lastly, the multilingual support feature in the sidebar allows users to select their preferred language for easier navigation throughout the tips generator. We offer Spanish, Mandarin, Cantonese, and Vietnamese translation options.
