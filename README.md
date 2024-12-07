@@ -14,8 +14,8 @@ Our application has three features that include delivering personalized water co
 
 ## Multilingual Support
 <div style="display: flex; justify-content: center;">
-  <img src="images/feature2_1.png" alt="Image 1" width="700"/>
-  <img src="images/feature2_2.png" alt="Image 2" width="300"/>
+  <img src="images/feature2_1.png" alt="Image 1" width="600"/>
+  <img src="images/feature2_2.png" alt="Image 2" width="350"/>
 </div>
 
 ## Visualizer Tool
