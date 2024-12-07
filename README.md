@@ -8,7 +8,7 @@ Our application has three features that include delivering personalized water co
 
 ## Personalized Water Conservation Tips Generator
 <div style="display: flex; justify-content: center;">
-  <img src="images/feature1_1.png" alt="Image 1" width="600"/>
+  <img src="images/feature1_1.png" alt="Image 1" width="650"/>
   <img src="images/feature1_2.png" alt="Image 2" width="300"/>
 </div>
 
